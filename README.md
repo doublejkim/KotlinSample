@@ -419,3 +419,84 @@ fun readFile(path: String) {
 
 - Kotlin 에는 try~with~resources 구문이 없음
 - 유사하게 사용하고자 한다면 `use { }` 와 같은 확장함수를 사용해서 동일한 동작 가능
+
+## 5. 함수 
+
+### 함수 선언
+
+```kotlin
+// [Kotlin]
+// 1)
+public fun sum(a: Int, b: Int): Int {
+    return a + b
+}
+
+// 2)
+fun sum(a: Int, b: Int): Int {
+	return a + b
+} 
+
+// 3)
+fun sum(a: Int, b: Int) = a + b
+
+```
+
+- public 생략 가능. 생략하면 public 으로 선언됨
+- 클래스 내부, 외부 선언가능. 한 파일안에 여러개 선언 가능  
+
+### Parameter - Default argument
+
+```kotlin
+// [Kotlin]
+fun repeatPrint(str: String, count: Int = 3, newLine: Boolean = true) {
+    for (i in 1..count) {
+        print(str)
+        if (newLine) {
+            println()
+        }
+    }
+}
+```
+
+### Parameter - Named argument
+
+```kotlin
+// [Kotlin]
+// 위의 함수를 호출. 단, count 는 default arg  를 사용하고 newLine 은 false 로 사용하고 싶다면
+repeatPrint("Hello", newLine = false)
+```
+- 매개변수 이름을 통해 직접지정, 지정되지 않은 매개변수는 default arg 사용
+- 해당 기능을 이용해 Builder 패턴을 구현할 수 있음
+- 단, Java 의 함수를 호출하여 사용하고자하면 Named argument 를 사용할 수 없음
+
+### 가변인자 파라미터
+
+```java
+// [Java]
+public static void printAll(String... args) {
+    for (String arg : args) {
+        System.out.println(arg);
+    }
+}
+```
+
+- 배열을 통해 전달하거나, 각 args 를 직접 comma 로 구분하여 전달 가능
+
+```kotlin
+// [Kotlin]
+fun printAll(vararg args: String) {
+    for (arg in args) {
+        println(arg)
+    }
+}
+
+// ---
+fun main() {
+    printAll("aaa", "bbb", "ccc")
+    val array = arrayOf("xxx", "yyy", "zzz")
+    printAll(*array)  // spread operator
+}
+```
+
+- `vararg` 키워드를 사용하여 가변인자 파라미터를 사용 가능
+- 배열을 전달할때는 `*(spread operator)` 를 사용하여 전달
