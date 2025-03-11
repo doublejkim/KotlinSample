@@ -500,3 +500,120 @@ fun main() {
 
 - `vararg` 키워드를 사용하여 가변인자 파라미터를 사용 가능
 - 배열을 전달할때는 `*(spread operator)` 를 사용하여 전달
+
+[코틀린 문서 - 함수 및 파라미터 등](https://kotlinlang.org/docs/functions.html#named-arguments)
+
+## 6. 클래스 
+
+### 클래스, 프로퍼티
+
+```java
+// [Java]
+public class Person {
+    private final string name;
+    private int age;
+    
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+    public String getName() { return this.name; }
+  
+    public int getAge() { return this.age; }
+  
+    public void setAge(int age) { this.age = age; }
+}
+```
+
+```kotlin
+// [Kotlin]
+class Person constructor(name: String, age: Int){
+    val name = name 
+    var age = age
+}
+
+// constructor 키워드 생략 가능 
+class Person(name: String, age: Int){
+  val name = name
+  var age = age
+}
+
+// 생성자에서 프로퍼티를 만들수있어서 아래와 같이 단순화 시킬 수 있음 
+// 아래에서는 Body 에 아무것도 없기때문에 생략 가능 
+class Person(val name: String, var age: Int)
+```
+
+- 코틀린에서는 필드만 만들면 getter, setter 를 자동으로 만들어줌 
+
+```kotlin
+// [Kotlin]
+val person = Person("Jack", 20)
+println(person.name)
+person.age = 30
+println(person.age)
+```
+
+- `Person` 클래스의 name getter, age setter/getter 는 이름으로 바로 사용 가능 
+
+### 생성자, init
+
+```kotlin
+// [Kotlin]
+class Person(val name: String, var age: Int) {
+    init {
+        if (age < 0) {
+            throw IllegalArgumentException("잘못된 나이 : $age")
+        }
+    }
+}
+```
+
+- 객체가 생성되는 시점에 무언가 하고싶다면? init!!
+
+```kotlin
+// [Kotlin]
+class Person(val name: String, var age: Int) { // 주 생성자 (Primary Constructor)
+  init {
+    if (age < 0) {
+      throw IllegalArgumentException("잘못된 나이 : $age")
+    }
+  }
+  
+  constructor(name: String): this(name, 1) // 생성자 오버로딩 (부 생성자 : Secondary Constructor)
+}
+```
+
+- 생성자 오버로딩은 `constructor` 키워드를 Body 안에 기술해서 사용 가능
+- 주 생성자 (Primary Constructor) 는 반드시 존재해야 함 
+- 부 생성자 (Secondary Constructor) 는 body 를 가질 수 있음 
+- default parameter 를 활용하여 생성자 오버로딩을 하지 않고도 동일한 역할 가능 
+
+
+### Custom getter, setter
+
+```kotlin
+// [Kotlin]
+class Person(
+  val name: String, 
+  var age: Int
+) { 
+    // 메소드로 만들기..
+    fun isAdult(): Boolean {
+        return this.age >= 20
+    }
+    
+    // Custom getter 1
+    val isAdult: Boolean
+      get() = this.age >= 20
+  
+    // Custom getter 2
+    val isAdult: Boolean
+      get() {
+          return this.age >= 20
+      }
+}
+```
+- 프로퍼티 인 것 처럼 custom getter/setter 를 만들어서 사용가능
+- 용도는 동일하니 알맞게 정해서 사용하면 됨
+
