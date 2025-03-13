@@ -617,3 +617,148 @@ class Person(
 - 프로퍼티 인 것 처럼 custom getter/setter 를 만들어서 사용가능
 - 용도는 동일하니 알맞게 정해서 사용하면 됨
 
+## 7. 클래스의 상속
+
+![section7_class.png](img/section7_class.png)
+
+```java
+// [Java]
+public abstract class JavaAnimal {
+
+  protected final String name;
+  protected final int legCount;
+
+  public JavaAnimal(String name, int legCount) {
+    this.name = name;
+    this.legCount = legCount;
+  }
+
+  abstract public void speak();
+
+  public String getName() { return this.name; }
+
+  public int getLegCount() { return this.legCount; }
+}
+```
+```java
+public class JavaDog extends JavaAnimal{
+
+  public JavaDog(String name) {
+    super(name, 4);
+  }
+
+  @Override
+  public void speak() { System.out.println("멍멍"); }
+}
+```
+```java
+public interface JavaFlyable {
+
+  default void doIt() { System.out.println("난다!!"); }
+  
+}
+```
+```java
+public interface JavaSwimmable {
+
+  default void doIt() { System.out.println("자유형!?!고고"); }
+}
+```
+```java
+public class JavaPenguin extends JavaAnimal implements JavaFlyable, JavaSwimmable {
+
+  private final int wingCount;
+
+  public JavaPenguin(String name) {
+    super(name, 2);
+    this.wingCount = 2;
+  }
+
+  @Override
+  public void speak() { System.out.println("짹~"); }
+
+  @Override
+  public int getLegCount() {
+    return super.legCount + this.wingCount;
+  }
+
+  @Override
+  public void doIt() {
+    JavaFlyable.super.doIt();
+    JavaSwimmable.super.doIt();
+  }
+}
+```
+
+![section7_class_kotlin.png](img/section7_class_kotlin.png)
+
+- 코틀린으로 동일하게...
+
+```kotlin
+// [Kotlin]
+abstract class Animal(
+    protected val name: String,
+    protected open val legCount: Int, 
+) {
+    abstract fun speak()
+}
+```
+- 코틀린에서는 프로퍼티를 override 하려면 open 키워드로 명시해줘야함.
+- 단, 추상 프로퍼티의 경우는 open 을 사용하지 않아도 가능 
+
+```kotlin
+class Dog(
+  name: String
+) : Animal(name, 4) {
+
+  override fun speak() { println("멍멍")  }
+
+}
+```
+- 상속은 콜론(`:`) 으로~
+- 오버라이드가 필요하면 `override` 키워드로 명시
+
+```kotlin
+interface Flyable {
+
+    fun doIt() { println("난다!!") } // Java 에서의 default method
+}
+```
+
+```kotlin
+interface Swimmable {
+
+    fun doIt() { println("자유형!!고고")} // Java 에서의 default method
+}
+```
+- 코틀린에서는 default 키워드 없이 인터페이스에서 메소드 구현체 기술 가능
+
+```kotlin
+class Penguin(
+    name: String,
+) : Animal(name, 2), Flyable, Swimmable{
+
+    private val wingCount: Int = 2
+
+    override fun speak() { println("짹") }
+
+    // override 키워드로 부모클래스의 legCount 프로퍼티를 오버라이딩. 
+    // customer getter 로 기능 구현
+    override var legCount: Int = 0
+        get() = super.legCount + this.wingCount
+
+    override fun doIt() {
+        super<Flyable>.doIt() // 중복되는 인터페이스를 특정할때는 super<타입>.메소드 형태로 사용
+        super<Swimmable>.doIt()
+    }
+}
+```
+
+- 상속 및 인터페이스 구현 모두 콜론(`:`)으로~
+
+### 상속 관련 지시어 정리
+
+- `final` : 오버라이딩을 할 수 없게함. default 로 보이지 않게 존재하고 있음
+- `open` : 오버라이딩 할 수 있게 열어줌
+- `abstract` : 반드시 오버라이딩 해야도록 명시
+- `oeverride` : 상위 타입을 오버라이딩 하는 것이라고 명시
