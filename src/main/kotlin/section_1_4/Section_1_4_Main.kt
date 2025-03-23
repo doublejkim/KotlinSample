@@ -27,5 +27,8 @@ fun main() {
         println(i)  // 1 3 5 7 9
     }
 
-
+    val newPerson = Person("xxx", 10)
+    newPerson.internalTest("xxx")
 }
+
+

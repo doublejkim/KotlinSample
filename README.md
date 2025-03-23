@@ -762,3 +762,414 @@ class Penguin(
 - `open` : 오버라이딩 할 수 있게 열어줌
 - `abstract` : 반드시 오버라이딩 해야도록 명시
 - `oeverride` : 상위 타입을 오버라이딩 하는 것이라고 명시
+
+## 8. 접근 제어
+
+### 자바와 코틀린의 접근 제어
+
+#### Java
+
+| 접근제어 키워드  | 접근 가능한 곳                         |
+|-----------|----------------------------------|
+| public    | 모든 곳에서 접근 가능                     |
+| protected | 같은 패키지 또는 하위 클래스에서만 접근 가능        |
+| default   | 같은 패키지에서만 접근 가능                   |
+| private   | 선언된 클래스 내에서만 접근 가능              |
+
+#### Kotlin
+
+| 접근제어 키워드 | 접근 가능한 곳                                   |
+| public          | 모든 곳에서 접근 가능                            |
+| protected       | `선언된 클래스` 또는 하위 클래스에서만 접근 가능 |
+| internal        | 같은 모듈에서만 접근 가능
+
+- default 는 사라졌음 
+- 위에서 말하는 모듈은 IDEA module, Maven Project, Gradle Srouce set 등의 컴파일 파일의 집합
+
+
+### 다양한 구성요소의 접근 제어 
+
+- 생성자에 접근 지시어를 사용하고 싶으면 명시적으로 `constructor` 를 써줘야함 
+
+```kotlin
+class Person private constructor(
+    val name: String,
+)
+```
+
+## 9. object 키워드 
+
+### static 함수, 변수
+
+```java
+// [Java]
+public class JavaCharacter {
+
+  private static final int MIN_LEVEL = 1;
+
+  public static JavaCharacter newCharacter(String name) {
+    return new JavaCharacter(name, MIN_LEVEL);
+  }
+
+  private String name;
+
+  private int level;
+
+  private JavaCharacter(String name, int level) {
+    this.name = name;
+    this.level = level;
+  }
+}
+```
+```kotlin
+class Character private constructor(
+    val name: String,
+    val level: Int,
+) {
+    companion object {
+        private const val MIN_LEVEL = 1
+        fun newCharacter(name: String): Character {
+            return Character(name, MIN_LEVEL)
+        }
+    }
+}
+```
+- `static` 키워드 없음 
+- `companion object` 는 일반적으로 이름을 붙이지 않음. 하지만 이름 붙이는것도 가능 
+- 다른 인터페이스를 구현하는것도 가능 
+
+### 싱글톤 (object)
+
+```kotlin
+object Character {
+    var num: Int = 0
+}
+
+// 사용하려면?
+Character.num // 바로 접근 가능
+```
+
+- 언어 레벨에서 싱글톤을 만들수있는 키워드
+
+
+### 익명 클래스 
+
+```kotlin
+interface MyAction {
+  fun fun1()
+  
+  fun fun2()
+}
+
+// ...
+
+fun main() {
+    doSoemthing(object : MyAction {   // object 키워드로 익명 클래스 사용 
+        override fun fun1() { println("fun1() !!!")}
+        override fun fun2() { println("fun2() !!!")}
+    })
+}
+
+fun doSomething(action: MyAction) {
+    action.fun1() 
+    action.fun2()
+}
+```
+
+[코틀린 문서 - object, companion object](https://kotlinlang.org/docs/object-declarations.html)
+
+## 10. 그 외 다양한 클래스
+
+### data class
+
+```kotlin
+data class Person(
+    var name: String,
+    var age: Int,
+)
+```
+- class 앞에 `data` 키워드만 적으면 됨 
+- `getter`, `setter`, `equals`, `hashCode`, `toString` 을 알아서 만들어줌 
+
+### enum class
+
+```kotlin
+enum class Country(
+  private val code: String,
+) {
+  KOREA("KO"),
+  AMERICA("US"),
+  //..
+}
+```
+
+### sealed class sealed interface
+
+```kotlin
+sealed class Car(
+    val name: String,
+    val price: Long,
+)
+
+class Genesis : Car("제네시스", 1_000L)
+
+class Tesla : Car("테슬라", 2_000L)
+
+class Ferrari : Car("페라리", 3_000L)
+
+// .....
+
+fun handleCar(car: Car) {
+    when (car) {
+        is Genesis -> TODO()
+        is Tesla -> TODO()
+        is Ferrari -> TODO()
+    }
+}
+
+```
+
+- 상속이 가능하도록 추상클래스를 만들고싶은데, 외부에서는 이 클래스를 상속받았지 않았면?
+- 컴파일 타임 때 하위 클래스의 타입을 모두 기억 
+- 런타임 때 클래스 타입 추가될 수없음.
+- 하위 클래스는 같은 패키지에 있어야함
+- enum 을 when 에 사용할때처럼 좀 더 편하게 사용 가능 
+
+> enum 과 다른점
+> 클래스를 상속 받을 수 있음
+> 하위 클래스는 멀티 인스턴스가 가능 
+
+## 11. 배열과 컬렉션 다루기
+
+### 배열
+
+```kotlin
+val array = arrayOf(100, 200) // Array<Int>
+
+for (i in array.indices) { // 인덱스를 획득
+    println("$i : ${array[i]}")
+}
+
+for ((idx, value) in array.withIndex()) { // 인덱스와 값을 동시에 획득 s 
+    println("$idx : $value")
+}
+```
+
+### Collection - List, Set Map
+
+![section11_collections_diagram.png](img/section11_collections_diagram.png)
+
+```kotlin
+    // 리스트 사용하기
+val numbers1 = listOf(10, 20)
+val numbers2 = mutableListOf(10, 20)
+numbers2.add(30)
+val emptyList1 = emptyList<String>()
+
+for (number in numbers1) {
+  println(number)
+}
+
+for ((idx, value) in numbers2.withIndex()) {
+  println("$idx: $value")
+}
+
+val lists = mutableListOf<String>()
+lists.add("aaa")
+lists.add("bbb")
+
+for (value in lists) {
+  println(value)
+}
+
+// 셋 사용하기
+val setNumbers = setOf(10, 20)
+for (number in setNumbers) {
+  println(number) // list 사용 법은 동일
+}
+
+// 맵 사용하기 
+val oldMap = mutableMapOf<Int, String>()
+oldMap[1] = "AAA" // java 처럼 put 을 사용해도 됨
+oldMap[2] = "BBB"
+
+for (key in oldMap.keys) {
+  println("$key: $oldMap[$key]")
+}
+
+val newMap = mapOf(1 to "XXX", 2 to "YYY", 3 to "ZZZ")
+
+for ((key, value) in newMap) { // .entries?
+  println("$key: $value")
+}
+```
+
+- 불변 인지, 가변인지 먼저 고려 필요
+- 불변이라하더라도 기존에 존재하는 element 의 내부 값은 수정가능 (element 자체의 추가/삭제가 안됨)
+
+
+[코틀린 문서 - Collections](https://kotlinlang.org/docs/collections-overview.html#collection-types)
+
+## 12. 함수 다루기
+
+### 확장 함수
+
+```kotlin
+// [Kotlin]
+fun 확장하려는클래스.함수명(파라미터): 리턴타입 {
+    // this 를 이용해 실제 클래스안의 값에 접근 
+}
+
+// ex)
+fun String.lastChar(): Char {
+  return this[this.length - 1]
+}
+```
+
+- 기존 Java 코드위에 자연스럽게 코틀린 코드를 추가? 
+- 특정 클래스안에 잇는 메소드처럼 호출할 수 있지만, 코드자체는 외부에 작성
+- 확장함수에서는 클래스에있는 private, protected 항목을 가져올수없음 (캡슐화 유지)
+- 실제 클래스 내부에있는 멤버함수와 동일하다면? 멤버함수가 먼저 호출됨 
+- 확장함수가 오버라이드된다면? 정적 타입에 의해 어떤함수가 호출될지 결정됨
+
+### infix 함수
+
+```kotlin
+
+fun Int.add1(other: Int): Int {
+    return this + other
+}
+
+// 함수 앞에 infix 키워드
+infix fun Int.add2(other: Int): Int
+{
+    return this + other
+}
+
+// ....
+
+2.add1(3)  // 5
+
+2.add2(3)  // 5
+5 add2 3   // 8. 이런식으로 사용할수있게해줌
+```
+
+- 함수를 호출하는 새로운 방법
+- downTo, step (infix 호출)
+
+### inline 함수
+
+```kotlin
+inline fun test() {
+    // ...
+}
+```
+- 함수 호출대신, 해당 부분이 그대로 치환됨 (즉 끼워넣기!!)
+
+### 지역 함수
+
+```kotlin
+fun outerFun(num: Int) {
+  fun innerFun(num: Int): Int {
+      return num * 10
+  }
+  // todo...
+}
+```
+
+- 즉, 함수 안에 함수 
+- but.. depth 가 깊어지기만해서 굳이 사용하지 않아도 될듯 
+
+[코틀린 문서 - Functions](https://kotlinlang.org/docs/functions.html)
+
+## 13. 코틀린에서의 람다
+
+### 코틀린에서의 람다
+
+- 코틀린에서는 함수가 그 자체로 값이 될수있음
+- 그러므로 변수에 할당할수도, 파라미터로 넘길수도 있음
+
+```kotlin
+val foods = listOf(
+        Food("돈까스", 1_000),
+        Food("돈까스", 3_500),
+        Food("국수", 2_000),
+        Food("국수", 2_500),
+        Food("국수", 3_500),
+        Food("스테이크", 20_000)
+    )
+
+    // 람다를 만드는 방법 (1)
+    val isDon1 = fun (food: Food): Boolean {
+        return food.name == "돈까스"
+    }
+
+    // 람다를 만드는 방법 (2) @@@ - 보통 많이 사용되는 람다 표현식 
+    val isDon2 = { food: Food -> food.name == "돈까스" }
+
+    // 람다를 직접 호출 (1)
+    println(isDon1(foods[0])) // true
+    // 람다를 직접 호출 (2) @@@
+    println(isDon2.invoke(foods[2])) // false
+```
+
+- 위와 같이 람다를 만드는 방법은 크게 2가지가 존재하고, 호출하는 방법도 2가지가 존재함
+
+```kotlin
+fun filterFoods(
+    foods: List<Food>,
+    filter: (Food) -> Boolean,  // @@@
+): List<Food> {
+    val results = mutableListOf<Food>()
+    for (food in foods) {
+        if (filter(food)) {
+            results.add(food)
+        }
+    }
+    return results
+}
+```
+
+- filter 라는 변수는 람다를 전달받을 수 있는데, `Food` 타입을 전달받아 `Boolean` 타입의 값을 리턴하는 람다를 전달받아 내부에서 사용함.
+
+```kotlin
+// 호출할때? 
+// 람다를 파라미터로 전달할수있음
+val noodles = filterFoods(foods, { food: Food -> food.name == "국수" })
+noodles.forEach { println(it) }
+```
+- 위와 같이 람다 표현식을 전달 가능 
+
+```kotlin
+val luxuryFoods = filterFoods(foods) { food: Food -> food.price > 5_000 }
+luxuryFoods.forEach { println(it) }
+```
+
+- 만약 람다형태로 받는 함수의 파라미터가, 파라미터의 순서중 가장 마지막에 있으면, 호출시 소괄호 밖으로 빼서 사용할 수 있도록 허용 
+
+```kotlin
+val donFoods = filterFoods(foods) { food -> food.name == "돈까스"}
+donFoods.forEach { println(it) }
+```
+- `filterFoods()` 함수의 파라미터에 타입이 명시되어있어서 컴파일러가 호출시에도 타입을 추론가능함. 따라서 람다에서 파라미터 타입은 생략 가능.
+
+```kotlin
+val steakFoods = filterFoods(foods) { it -> it.name == "스테이크 "}
+donFoods.forEach { println(it) }
+```
+
+- 람다 함수로 전달받는 값이 1개 밖에 없다면 그 파라미터는 `it` 키워드로 표현 가능
+
+```kotlin
+val cheapFoods = filterFoods(foods) { food ->
+    println("저렴한 것만 고르자!!")
+    fruit.price < 3_000
+}
+```
+
+- 람다는 여러 줄로 작성 가능하며, 마지막 줄의 결과가 람다의 반환값이다 (return 을 명시하지 않음)
+
+[코틀린 문서 - Lambda](https://kotlinlang.org/docs/lambdas.html)
+
+
+

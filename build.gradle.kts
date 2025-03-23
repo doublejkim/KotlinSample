@@ -7,9 +7,15 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+
+    flatDir{
+        dirs("lib")
+    }
 }
 
 dependencies {
+    implementation(files("KotlinMyLib-1.0-SNAPSHOT.jar"))
+
     testImplementation(kotlin("test"))
 
     compileOnly("org.projectlombok:lombok:1.18.36")
