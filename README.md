@@ -779,6 +779,7 @@ class Penguin(
 #### Kotlin
 
 | 접근제어 키워드 | 접근 가능한 곳                                   |
+|-----------|----------------------------------|
 | public          | 모든 곳에서 접근 가능                            |
 | protected       | `선언된 클래스` 또는 하위 클래스에서만 접근 가능 |
 | internal        | 같은 모듈에서만 접근 가능
@@ -1171,5 +1172,179 @@ val cheapFoods = filterFoods(foods) { food ->
 
 [코틀린 문서 - Lambda](https://kotlinlang.org/docs/lambdas.html)
 
+## 14. 컬렉션을 함수형으로 다루기
+
+### filter, map
+
+```kotlin
+val foods = listOf(
+    Food("라면", 3_000),
+    Food("라면", 4_500),
+    Food("김밥", 2_000),
+    Food("김밥", 2_500),
+    Food("어묵", 2_000),
+    Food("탕수육", 10_000),
+    Food("탕수육", 15_000),
+)
+
+println("======================================= 필터")
+val ramens = foods.filter { food -> food.name == "라면" }
+ramens.forEach { println(it) }
+
+println("======================================= 필터에서 인덱스 사용")
+val filterIndexed = foods.filterIndexed { idx, fruit ->
+    println("idx: $idx, fruit: $fruit")
+    fruit.name == "김밥"
+}
+filterIndexed.forEach { println(it) }
+
+println("======================================= 필터링 후 매핑")
+val expensiveFoods1 = foods.filter { fruit -> fruit.price > 5_000 }
+    .map { fruit -> fruit.name }
+expensiveFoods1.forEach { println(it) }
+```
+
+### 컬렉션 처리
+
+```kotlin
+println("======================================= all ")
+println(foods.all { it.price > 3_000 } ) // 모든 요소가 조건을 만족 : true
+
+println("======================================= none ")
+println(foods.none { it.price > 20_000 } ) // 모든 요소가 조건을 불만족 : true
+
+println("======================================= any ")
+println(foods.any { it.price > 10_000 } ) // 모든 요소가 조건을 하나라도 만족 : true
+
+println("======================================= count ")
+println(foods.count()) // size 와 동일
+
+println("======================================= sortedBy ")
+foods.sortedBy { fruit -> fruit.price }.forEach { println(it) }
+
+println("======================================= sortedByDescending ")
+foods.sortedByDescending { fruit -> fruit.price }.forEach { println(it) }
+
+println("=======================================  distinctBy")
+foods.distinctBy { it.name }
+    .map { it.name }
+    .forEach { println(it) }
 
 
+foods.first() // 무조건 null, emptyList 면안됨.  없으면 에러
+foods.firstOrNull() // 없으면 null 반환
+foods.last() // 무조건 null, emptyList 면안됨.  없으면 에러
+foods.lastOrNull() // 없으면 null 반환
+```
+
+### List 를 Map 으로 변환 (groupBy, associateBy)
+
+```kotlin
+println("=======================================  groupBy")
+val groupingFoods = foods.groupBy { it.name } // Map<String, List<Fruit>>
+groupingFoods.keys.forEach { key ->
+    println("key: $key")
+    groupingFoods[key]?.forEach { println("\t$it") }
+}
+
+println("=======================================  groupBy 2")
+val groupingFoods2 = foods.groupBy({ it.name }, { it.price }) // Map<String, List<Int>> // 음식이름, List<가격>
+groupingFoods2.keys.forEach { key ->
+    println("key: $key")
+    groupingFoods2[key]?.forEach { println("\t$it") }
+}
+
+println("=======================================  associateBy")
+val associatedFoodMap = foods.associateBy { it.id }  // Map<Int, Food> // value 쪽에 단일 객체
+associatedFoodMap[3]?.let { println(it) }
+
+println("=======================================  associateBy 2")
+val associatedFoodMap2 = foods.associateBy( { it.id }, { it.price } )  // K : 아이디, V : 가격
+associatedFoodMap2[3]?.let { println(it) }
+```
+
+- `groupBy` : 특정 키를 기준으로 그룹핑
+- `associateBy` : 특정 키를 기준으로 Map 으로 변환
+
+### 중첩된 컬렉션 처리 
+
+```kotlin
+val foodsInList: List<List<Food>> = listOf(
+		listOf(
+			Food(1, "라면", 3_000),
+			Food(2, "김밥", 2_500),
+			Food(3, "떡볶이", 3_500),
+		),
+		listOf(
+			Food(4, "짜장면", 5_000),
+			Food(5, "짬뽕", 6_000),
+		),
+		listOf(
+			Food(6, "백반", 9_000)
+		)
+	)
+
+println("=======================================  flatten")
+foodsInList.flatten().forEach { println(it) }
+
+println("=======================================  flatMap")
+foodsInList.flatMap { list -> list.map { it.name } }.forEach { println(it) }
+```
+
+- `flatten` : 내부의 모든 리스트를 평탄하게 같은 레벨로 만들어줌
+- `flatMap` : 내부의 리스트를 (매핑)변환하여 하나의 리스트로 만들어줌
+
+## 15. Scope Function
+
+### Scope Function 의 종류
+
+- `apply` / `also` / `run` / `let` / `with`
+
+### Scope Function ??
+
+- 람다를 사용해 일시적인 영역을 형성하는 함수
+- method chaning 에 활용
+
+### 
+
+| 함수명   | 반환 값 | 사용하는 객체 | 
+|-------|------|----------|
+| apply | 객체 자신 | this |
+| also  | 객체 자신 | it   |
+| run   | 람다 결과 | this |
+| let   | 람다 결과 | it   |
+
+```kotlin
+val food = Food(1, "라면", 3_000)
+
+	val applyFood = food.apply {
+		this.name
+	}
+
+	val alsoFood = food.also {
+		it.name
+	}
+
+	val runFood = food.run {
+		this.name
+	}
+
+	val letFood = food.let {
+		it.name
+	}
+```
+
+- 위의 예에서 apply, also 는 객체 자신이 반환 됨
+- 위의 예에서 run, let 은 람다의 결과 값이 반환 됨
+
+```kotlin
+val food = Food(1, "라면", 3_000)
+
+with(food) {
+	println(name)
+    println(this.price)
+}
+```
+
+- `with` 는 `run` 과 동일한 역할을 함
+- this 를 사용해접근가능하고, 생략 가능 

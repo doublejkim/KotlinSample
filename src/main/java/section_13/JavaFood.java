@@ -1,11 +1,11 @@
 package section_13;
 
-public class Food {
+public class JavaFood {
 
     private final String name;
     private final int price;
 
-    public Food(String name, int price) {
+    public JavaFood(String name, int price) {
         this.name = name;
         this.price = price;
     }

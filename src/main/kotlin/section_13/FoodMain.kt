@@ -1,25 +1,25 @@
 package org.example.section_13
 
-import section_13.Food
+import section_13.JavaFood
 import java.io.BufferedReader
 import java.io.FileReader
 
 fun main() {
 
     val foods = listOf(
-        Food("돈까스", 1_000),
-        Food("돈까스", 5_500),
-        Food("국수", 2_000),
-        Food("국수", 2_500),
-        Food("국수", 3_500),
-        Food("스테이크", 20_000)
+        JavaFood("돈까스", 1_000),
+        JavaFood("돈까스", 5_500),
+        JavaFood("국수", 2_000),
+        JavaFood("국수", 2_500),
+        JavaFood("국수", 3_500),
+        JavaFood("스테이크", 20_000)
     )
 
-    val isDon1 = fun (food: Food): Boolean {
+    val isDon1 = fun (food: JavaFood): Boolean {
         return food.name == "돈까스"
     }
 
-    val isDon2 = { food: Food -> food.name == "돈까스" }
+    val isDon2 = { food: JavaFood -> food.name == "돈까스" }
 
     println(isDon1(foods[0]))
     println(isDon2.invoke(foods[2]))
@@ -27,14 +27,14 @@ fun main() {
     println("====================================")
 
     // 람다를 파라미터로 전달할수있음
-    val noodles = filterFoods(foods, { food: Food -> food.name == "국수" })
+    val noodles = filterFoods(foods, { food: JavaFood -> food.name == "국수" })
     noodles.forEach { println(it) }
 
     println("====================================")
 
     // 만약 람다형태로 받는 함수의 파라미터가 , 파라미터의 순서중 가장마지막에 있다면
     // 소괄호 밖으로 빼서 사용할수있도록 허용
-    val luxuryFoods = filterFoods(foods) { food: Food -> food.price > 5_000 }
+    val luxuryFoods = filterFoods(foods) { food: JavaFood -> food.price > 5_000 }
     luxuryFoods.forEach { println(it) }
 
     println("====================================")
@@ -45,7 +45,7 @@ fun main() {
 
     println("====================================")
     // 만약 람다로 표현할때 파라미터가 1개라면 it 이라는 키워드를 사용할수있음
-    val steakFoods = filterFoods(foods) { it -> it.name == "스테이크 "}
+    val steakFoods = filterFoods(foods) { it.name == "스테이크 "}
     donFoods.forEach { println(it) }
 
 
@@ -53,10 +53,10 @@ fun main() {
 }
 
 fun filterFoods(
-    foods: List<Food>,
-    filter: (Food) -> Boolean,
-): List<Food> {
-    val results = mutableListOf<Food>()
+    foods: List<JavaFood>,
+    filter: (JavaFood) -> Boolean,
+): List<JavaFood> {
+    val results = mutableListOf<JavaFood>()
     for (food in foods) {
         if (filter(food)) {
             results.add(food)
